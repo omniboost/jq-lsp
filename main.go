@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"runtime/debug"
+	"strings"
 
 	"github.com/wader/jq-lsp/lsp"
 	"github.com/wader/jq-lsp/profile"
@@ -20,9 +21,15 @@ func main() {
 		}
 	}
 
+	// Overwrite read file of JQ's, so relative paths work in our (Omniboost) integrations
+	jqsReadFile := func(name string) ([]byte, error) {
+		name = strings.Replace(name, `/jqs/jqs/`, `/jqs/`, -1)
+		return os.ReadFile(name)
+	}
+
 	if err := lsp.Run(lsp.Env{
 		Version:  version,
-		ReadFile: os.ReadFile,
+		ReadFile: jqsReadFile,
 		Stdin:    os.Stdin,
 		Stdout:   os.Stdout,
 		Stderr:   os.Stderr,
