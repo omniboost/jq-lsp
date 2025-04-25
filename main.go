@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
+	"regexp"
 	"runtime/debug"
-	"strings"
 
 	"github.com/wader/jq-lsp/lsp"
 	"github.com/wader/jq-lsp/profile"
@@ -22,8 +22,9 @@ func main() {
 	}
 
 	// Overwrite read file of JQ's, so relative paths work in our (Omniboost) integrations
+	omniboostSubdirRegex := regexp.MustCompile("/jqs/(.+/)?jqs/")
 	jqsReadFile := func(name string) ([]byte, error) {
-		name = strings.Replace(name, `/jqs/jqs/`, `/jqs/`, -1)
+		name = omniboostSubdirRegex.ReplaceAllString(name, "/jqs/")
 		return os.ReadFile(name)
 	}
 
